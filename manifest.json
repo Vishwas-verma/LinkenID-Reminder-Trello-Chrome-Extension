@@ -1,6 +1,6 @@
 {
-    "name": "Chrome Extension MV3",
-    "description": "Building a Chrome Extension MV3",
+    "name": "LinkedIn Reminder",
+    "description": "Reminder To Contact A Person using Trello",
     "version": "0.1.0",
     "manifest_version": 3,
     "icons": {
@@ -29,6 +29,7 @@
         "scripting"
     ],
     "host_permissions": [
-        "https://www.google.com/*"
+        "https://www.linkedin.com/*",
+        "https://api.trello.com/*"
     ]
 }

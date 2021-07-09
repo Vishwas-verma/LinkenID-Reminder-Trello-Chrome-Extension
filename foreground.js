@@ -1,38 +1,39 @@
-const ce_main_container = document.createElement('DIV');
-const ce_name = document.createElement('DIV');
 const ce_input = document.createElement('INPUT');
 const ce_button = document.createElement('DIV');
 
-ce_main_container.classList.add('ce_main');
-ce_name.id = 'ce_name';
 ce_input.id = 'ce_input';
+ce_input.type='date';
+ce_input.style.cssText="width:152px;border-radius:1.69rem;cursor:pointer";
+
 ce_button.id = 'ce_button';
 
-ce_name.innerHTML = `Hello NAME`;
-ce_button.innerHTML = `Change name.`;
+ce_button.innerHTML = `Set Reminder`;
 
-ce_main_container.appendChild(ce_name);
-ce_main_container.appendChild(ce_input);
-ce_main_container.appendChild(ce_button);
+const x=document.getElementsByClassName("pvs-profile-actions")[0]
+x.appendChild(ce_input);
+x.appendChild(ce_button);
 
+async function showAToast(){
+	iqwerty.toast.toast('Reminder Has Been Set', {
+		style: {
+			main: {
+				'background': 'pink',
+				'color': 'black',
+			},
+		},
+	});
+}
 
-document.querySelector('body').appendChild(ce_main_container);
-
-chrome.runtime.sendMessage({ 
-    message: "get_name"
-}, response => {
-    if (response.message === 'success') {
-        ce_name.innerHTML = `Hello ${response.payload}`;
-    }
-});
-
-ce_button.addEventListener('click', () => {
+ce_button.addEventListener('click', async () => {
     chrome.runtime.sendMessage({ 
-        message: "change_name",
+        message: "send_reminder",
         payload: ce_input.value
     }, response => {
         if (response.message === 'success') {
-            ce_name.innerHTML = `Hello ${ce_input.value}`;
+            console.log(ce_input.value);
         }
     });
+    ce_input.value='';
+    alert("Reminder Has Been Set !")
+   // await showAToast();
 });

@@ -1,11 +1,5 @@
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({
-        name: "Jack"
-    });
-});
-
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && /^http/.test(tab.url)) {
+    if (changeInfo.status === 'complete' && /^http/.test(tab.url) && tab.active) {
         chrome.scripting.insertCSS({
             target: { tabId: tabId },
             files: ["./foreground_styles.css"]
@@ -25,36 +19,26 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'get_name') {
-        chrome.storage.local.get('name', data => {
-            if (chrome.runtime.lastError) {
-                sendResponse({
-                    message: 'fail'
-                });
+async function getCurrentTabUrl() {
+    let queryOptions = { active: true, currentWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab.url;
+  }
 
-                return;
-            }
-
-            sendResponse({
-                message: 'success',
-                payload: data.name
-            });
+chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
+    if (request.message === 'send_reminder') {
+        const url =await getCurrentTabUrl();
+            const response=await fetch('https://api.trello.com/1/cards?key=`APP-KEY`&token=`TOKEN`&&idList=`LISTID`&&name=Bill Gates&&due='+request.payload+'&&desc='+url, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            })
+            console.log(response);
+        
+        sendResponse({
+            message: 'success',
         });
-
         return true;
-    } else if (request.message === 'change_name') {
-        chrome.storage.local.set({
-            name: request.payload
-        }, () => {
-            if (chrome.runtime.lastError) {
-                sendResponse({ message: 'fail' });
-                return;
-            }
-
-            sendResponse({ message: 'success' });
-        })
-
-        return true;
-    }
+    } 
 });
